@@ -1,0 +1,39 @@
+c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
+
+
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+1EFCAF60+1EF0AF60 CA00
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...
+                                                                               
+
+
+Booting from Hard Disk..xv6...
+cpu0: starting 0
+sb: size 1000 nblocks 941 ninodes 200 nlog 30 logstart 2 inodestart 32 bmap start 58
+init: starting sh
+$ test_deadlock
+=== Task 2 & 3: Advisory flock & WFG Deadlock Resolution Test ===
+[INIT] Created lockfileA (inum=22) and lockfileB (inum=23)
+
+--- [Subtest 1] Algo Option A: WFG Cycle Detection & -EDEADLK Rollback ---
+[Parent PID 3] Locked lockfileA (inum=22)
+[Child PID 4] Locked lockfileB (inum=23)
+[Parent PID 3] Waiting on lockfileB (inum=23)...
+[Child PID 4] Requesting lockfileA (inum=22) -> forming Circular Wait...
+[WFG CYCLE DETECTED] PID 4 --(waits inum 22)--> PID 3 --(waits inum 23)--> PID 4
+[WFG OPTION A: ROLLBACK] Aborting flock for PID 4 with -EDEADLK (-35)
+[Child PID 4] flock aborted with -EDEADLK (-35)! Releasing lockfileB.
+[Parent PID 3] Acquired lockfileB after child rollback!
+
+--- [Subtest 2] Algo Option B: Strict Inode inum Lock Ordering Avoidance ---
+[WFG OPTION B: LOCK ORDERING VIOLATION] PID 3 holds inum 23 and requested lower inum 22 -> avoiding potential deadlock (-EDEADLK)
+[Parent PID 3] Out-of-order flock(inum 23 -> inum 22) returned -35 (-EDEADLK)
+
+--- [Subtest 3] Algo Option C: Youngest-Process Preemption via kill() ---
+[Younger Child PID 6] Locked lockfileB, now blocking on lockfileA...
+[Older Parent PID 3] Requesting lockfileB with LOCK_PREEMPT...
+[WFG CYCLE DETECTED] PID 3 --(waits inum 23)--> PID 6 --(waits inum 22)--> PID 3
+[WFG OPTION C: PREEMPTION] Youngest process in cycle is PID 6 (creation_time=260) -> sending preemptive kill signal
+[Older Parent PID 3] Acquired lockfileB after youngest-process preemption!
+=== [PASS] Task 2 & 3 Flock & Deadlock Resolution Suite Completed ===
+$ QEMU: Terminated
+

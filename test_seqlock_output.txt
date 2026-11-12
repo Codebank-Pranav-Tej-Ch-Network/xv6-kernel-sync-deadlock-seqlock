@@ -1,0 +1,23 @@
+c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
+
+
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+1EFCAF60+1EF0AF60 CA00
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...
+                                                                               
+
+
+Booting from Hard Disk..xv6...
+cpu0: starting 0
+sb: size 1000 nblocks 941 ninodes 200 nlog 30 logstart 2 inodestart 32 bmap start 58
+init: starting sh
+$ test_seqlock
+=== Task 4: Seqlocks & VFS Inode Cache (icache) Telemetry Test ===
+[READ 1 - Optimistic] mode=0 | seq=12 (even) | hits=2 | misses=4 | fallbacks=0
+[READ 2 - Optimistic] mode=0 | seq=26 (even) | hits=7 (+5) | misses=6 (+2) | fallbacks=0
+
+--- Testing Starvation-Avoidance Fallback (N=5 retries -> hard spinlock) ---
+[SEQLOCK FALLBACK] Reader failed 5 consecutive optimistic reads -> acquired hard spinlock (seq=28, fallbacks=1)
+[READ 3 - Fallback]   mode=1 (hard spinlock) | seq=28 | hits=7 | misses=6 | fallbacks=1
+=== [PASS] Task 4 Seqlock Telemetry & Starvation Fallback Succeeded ===
+$ QEMU: Terminated
+
